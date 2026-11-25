@@ -12,6 +12,15 @@ const written = readFileSync(target, "utf8");
 if (written !== LINE) {
   throw new Error(`output mismatch: expected ${JSON.stringify(LINE)}, got ${JSON.stringify(written)}`);
 }
+// Byte-level verification: the file must be exactly the UTF-8 encoding of
+// LINE — no trailing newline, no BOM, no re-encoding surprises.
+const writtenBytes = readFileSync(target);
+const expectedBytes = Buffer.from(LINE, "utf8");
+if (!writtenBytes.equals(expectedBytes)) {
+  throw new Error(
+    `output bytes mismatch: expected ${expectedBytes.length} bytes, got ${writtenBytes.length} bytes`,
+  );
+}
 if (written.length < 1 || written.length > 400) {
   throw new Error(`output length ${written.length} outside 1-400 chars`);
 }
